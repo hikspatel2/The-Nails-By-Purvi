@@ -1,0 +1,6 @@
+{
+  "name": "The Nails by Purvi",
+  "description": "Website for The Nails by Purvi, a nail artist business offering dry manicure, gel polish, and various extensions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,1 @@
+fetch('https://unsplash.com/napi/search/photos?query=nail+art&per_page=10').then(res => res.json()).then(data => { data.results.forEach(img => { console.log(img.id + ' | ' + img.urls.regular); }); }).catch(console.error);

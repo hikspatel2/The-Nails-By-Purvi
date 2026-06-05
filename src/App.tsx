@@ -53,7 +53,7 @@ export default function App() {
             <div className="flex-shrink-0 flex items-center">
               <a href="#" className="flex items-center cursor-pointer" onClick={(e) => { e.preventDefault(); window.scrollTo(0,0); }}>
                 <img 
-                  src="/logo.png?v=2" 
+                  src="./logo.png?v=2" 
                   alt="Nails by Purvi Ramani Logo" 
                   className="h-16 sm:h-20 w-auto object-contain mix-blend-multiply transition-transform duration-300 hover:scale-105"
                   onError={(e) => {

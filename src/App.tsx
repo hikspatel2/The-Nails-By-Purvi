@@ -13,13 +13,30 @@ import { LoyaltyRewards } from './components/LoyaltyRewards';
 import { HowToBook } from './components/HowToBook';
 import { AftercareInstructions } from './components/AftercareInstructions';
 import { Courses } from './components/Courses';
+import { ReviewRequestModal } from './components/ReviewRequestModal';
 import { useBooking } from './contexts/BookingContext';
-import { Menu, X, ArrowUp } from 'lucide-react';
+import { Menu, X, ArrowUp, Link as LinkIcon } from 'lucide-react';
 
 export default function App() {
   const { openBooking } = useBooking();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<'home' | 'portfolio'>('home');
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#portfolio') {
+        setCurrentView('portfolio');
+        window.scrollTo(0, 0);
+      } else {
+        setCurrentView('home');
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    handleHashChange();
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -117,17 +134,25 @@ export default function App() {
 
       {/* Main Content */}
       <main className="pt-20">
-        <Hero />
-        <Services />
-        <HowToBook />
-        <Courses />
-        <WhyChooseUs />
-        <About />
-        <ServiceGallery />
-        <AftercareInstructions />
-        <Testimonials />
-        <FAQ />
-        <Contact />
+        {currentView === 'portfolio' ? (
+          <div className="min-h-screen">
+            <ServiceGallery isFullPage={true} />
+          </div>
+        ) : (
+          <>
+            <Hero />
+            <Services />
+            <HowToBook />
+            <Courses />
+            <WhyChooseUs />
+            <About />
+            <ServiceGallery isFullPage={false} />
+            <AftercareInstructions />
+            <Testimonials />
+            <FAQ />
+            <Contact />
+          </>
+        )}
       </main>
 
       {/* Footer */}
@@ -149,12 +174,17 @@ export default function App() {
           <div className="mt-6 flex justify-center space-x-6 text-xs text-zinc-400 font-light">
             <a href="#" className="hover:text-rose-500 transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-rose-500 transition-colors">Terms of Service</a>
+            <button onClick={() => setIsReviewModalOpen(true)} className="hover:text-rose-500 transition-colors cursor-pointer flex items-center gap-1">
+              <LinkIcon className="w-3 h-3" />
+              Request Review
+            </button>
           </div>
         </div>
       </footer>
       
       <FloatingWhatsApp />
       <CookieConsent />
+      <ReviewRequestModal isOpen={isReviewModalOpen} onClose={() => setIsReviewModalOpen(false)} />
       
       {/* Back to Top Button */}
       <button

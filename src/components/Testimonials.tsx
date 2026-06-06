@@ -35,6 +35,20 @@ export function Testimonials() {
     const timer = setTimeout(() => {
       setIsDataLoading(false);
     }, 1200);
+
+    // Check if URL has ?action=review to automatically open the modal
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'review' || window.location.hash === '#review') {
+      setIsModalOpen(true);
+      // Clean up the URL (optional but nice)
+      window.history.replaceState({}, '', window.location.pathname);
+      
+      // Scroll into view if needed
+      setTimeout(() => {
+        document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+    }
+    
     return () => clearTimeout(timer);
   }, []);
   

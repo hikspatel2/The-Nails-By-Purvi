@@ -6,7 +6,7 @@ export function About() {
           <div className="w-full lg:w-1/2 relative">
             <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl">
                 <img 
-                  src="./purvi-profile.jpg" 
+                  src="/purvi-profile.jpg" 
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     if (target.src.includes('unsplash.com')) return; // Prevent infinite loop

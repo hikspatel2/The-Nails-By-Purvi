@@ -20,15 +20,46 @@ const DEFAULT_ITEMS: GalleryItem[] = [
 
 export function ServiceGallery({ isFullPage = false }: { isFullPage?: boolean }) {
   const [items, setItems] = useState<GalleryItem[]>([]);
+  const filteredItems = [...items].sort((a,b) => b.createdAt - a.createdAt);
+  const displayItems = isFullPage ? filteredItems : filteredItems.slice(0, 6);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
   
   // Intersection Observer state and ref for optimized image loading
   const [isNear, setIsNear] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   // Lightbox state
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isFullPage) return;
+    
+    let intervalId: NodeJS.Timeout;
+    const startScroll = () => {
+      intervalId = setInterval(() => {
+        if (scrollContainerRef.current) {
+          const container = scrollContainerRef.current;
+          const child = container.firstElementChild as HTMLElement;
+          if (child) {
+             const scrollAmount = child.offsetWidth + 16;
+             const atEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - scrollAmount / 2;
+             
+             if (atEnd) {
+                container.scrollTo({ left: 0, behavior: 'smooth' });
+             } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+             }
+          }
+        }
+      }, 3000);
+    };
+
+    startScroll();
+    
+    return () => clearInterval(intervalId);
+  }, [isFullPage, displayItems.length]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -60,6 +91,34 @@ export function ServiceGallery({ isFullPage = false }: { isFullPage?: boolean })
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  // Admin Login State
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [adminPin, setAdminPin] = useState("");
+  const [loginError, setLoginError] = useState(false);
+
+  const handleAdminToggleClick = () => {
+    if (isAdminMode) {
+      setIsAdminMode(false);
+    } else {
+      setShowAdminLogin(true);
+    }
+  };
+
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (adminPin === "1234" || adminPin === "admin") {
+      setIsAdminMode(true);
+      setShowAdminLogin(false);
+      setAdminPin("");
+      setLoginError(false);
+    } else {
+      setLoginError(true);
+      setTimeout(() => setLoginError(false), 2000);
+    }
+  };
+
+  const [isInitialized, setIsInitialized] = useState(false);
+
   // Load from local storage on mount
   useEffect(() => {
     const saved = localStorage.getItem('nails_saas_gallery_v2');
@@ -83,16 +142,37 @@ export function ServiceGallery({ isFullPage = false }: { isFullPage?: boolean })
         setItems(DEFAULT_ITEMS);
       }
     }
+    setIsInitialized(true);
   }, []);
 
   // Save to local storage whenever items change
   useEffect(() => {
-    if (items.length > 0 || localStorage.getItem('nails_saas_gallery_v2')) {
-      localStorage.setItem('nails_saas_gallery_v2', JSON.stringify(items));
+    if (isInitialized) {
+      const currentStored = localStorage.getItem('nails_saas_gallery_v2');
+      const newSerialized = JSON.stringify(items);
+      if (currentStored !== newSerialized) {
+        localStorage.setItem('nails_saas_gallery_v2', newSerialized);
+        window.dispatchEvent(new Event('gallery-updated'));
+      }
     }
-  }, [items]);
-
-  const filteredItems = items.sort((a,b) => b.createdAt - a.createdAt);
+  }, [items, isInitialized]);
+  
+  // Listen for updates from other instances
+  useEffect(() => {
+    const handleGalleryUpdate = () => {
+      const saved = localStorage.getItem('nails_saas_gallery_v2');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          // Only update if it's different to prevent loops
+          setItems(prevItems => JSON.stringify(prevItems) !== saved ? parsed : prevItems);
+        } catch (e) {}
+      }
+    };
+    
+    window.addEventListener('gallery-updated', handleGalleryUpdate);
+    return () => window.removeEventListener('gallery-updated', handleGalleryUpdate);
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -175,12 +255,12 @@ export function ServiceGallery({ isFullPage = false }: { isFullPage?: boolean })
   
   const handlePrevious = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setLightboxIndex(prev => prev !== null ? (prev > 0 ? prev - 1 : filteredItems.length - 1) : null);
+    setLightboxIndex(prev => prev !== null ? (prev > 0 ? prev - 1 : displayItems.length - 1) : null);
   };
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setLightboxIndex(prev => prev !== null ? (prev < filteredItems.length - 1 ? prev + 1 : 0) : null);
+    setLightboxIndex(prev => prev !== null ? (prev < displayItems.length - 1 ? prev + 1 : 0) : null);
   };
 
   return (
@@ -197,29 +277,72 @@ export function ServiceGallery({ isFullPage = false }: { isFullPage?: boolean })
             </a>
           )}
           <h2 className="text-3xl md:text-4xl font-serif text-gray-900 mb-4">
-            {isFullPage ? "Full Service Portfolio" : "Service Portfolio"}
+            Gallery
           </h2>
           <p className="text-gray-500 font-light max-w-2xl mx-auto">
             Explore our artistic creations. We pride ourselves on delivering picture-perfect results tailored to you.
           </p>
           
           <button 
-            onClick={() => setIsAdminMode(!isAdminMode)}
+            onClick={handleAdminToggleClick}
             className={`absolute top-0 right-0 p-3 rounded-full transition-all duration-300 ${isAdminMode ? 'bg-rose-100 text-rose-600 shadow-inner' : 'text-gray-300 hover:text-gray-500 hover:bg-gray-100'} cursor-pointer z-10 flex items-center justify-center gap-2 group`}
-            title="Toggle SaaS Admin Mode"
+            title="SaaS Admin Access"
           >
             <Settings2 className="w-5 h-5 transition-transform duration-500 group-hover:rotate-90" />
             {isAdminMode && <span className="text-xs font-semibold pr-2 tracking-wider uppercase">Admin Mode</span>}
           </button>
         </div>
 
+        {/* Admin Login Modal */}
+        {showAdminLogin && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+              <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+                <h3 className="text-lg font-serif text-gray-900">Admin Access</h3>
+                <button 
+                  onClick={() => { setShowAdminLogin(false); setAdminPin(""); setLoginError(false); }} 
+                  className="text-gray-400 hover:text-gray-900 transition-colors bg-gray-50 hover:bg-gray-100 p-2 rounded-full cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <form onSubmit={handleAdminLogin} className="p-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Enter Admin PIN</label>
+                <input 
+                  type="password" 
+                  value={adminPin}
+                  onChange={(e) => setAdminPin(e.target.value)}
+                  className={`w-full px-4 py-3 rounded-xl border ${loginError ? 'border-red-500 bg-red-50' : 'border-gray-200'} focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all text-center tracking-widest text-lg`}
+                  placeholder="••••"
+                  autoFocus
+                />
+                {loginError && <p className="text-red-500 text-xs mt-2 text-center">Incorrect PIN. Try '1234'</p>}
+                <button 
+                  type="submit"
+                  className="w-full mt-6 bg-gray-900 text-white rounded-xl py-3 font-medium tracking-wide hover:bg-rose-600 transition-colors cursor-pointer"
+                >
+                  Unlock Admin
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
         {/* Masonry/Grid Gallery */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 md:grid-cols-3 gap-4 md:gap-6">
+        <div 
+          ref={scrollContainerRef}
+          className={
+            isFullPage 
+              ? "grid grid-cols-2 lg:grid-cols-4 md:grid-cols-3 gap-4 md:gap-6" 
+              : "flex overflow-x-auto snap-x snap-mandatory gap-4 md:gap-6 pb-6 [&::-webkit-scrollbar]:hidden"
+          }
+          style={!isFullPage ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : {}}
+        >
            {/* Admin Upload Card */}
            {isAdminMode && !isDataLoading && (
              <div 
                onClick={() => setIsModalOpen(true)}
-               className="aspect-[4/5] bg-white border-2 border-dashed border-rose-200 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-rose-400 hover:bg-rose-50 transition-all duration-300 group shadow-sm hover:shadow-xl hover:-translate-y-1"
+               className={`aspect-[4/5] bg-white border-2 border-dashed border-rose-200 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-rose-400 hover:bg-rose-50 transition-all duration-300 group shadow-sm hover:shadow-xl hover:-translate-y-1 ${!isFullPage ? "min-w-[calc(65vw)] sm:min-w-[calc(50%-16px)] md:min-w-[calc(33.333%-16px)] lg:min-w-[calc(25%-18px)] flex-shrink-0 snap-start" : ""}`}
              >
                <div className="w-14 h-14 rounded-full bg-rose-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                  <Plus className="w-6 h-6 text-rose-600" />
@@ -231,17 +354,17 @@ export function ServiceGallery({ isFullPage = false }: { isFullPage?: boolean })
 
            {isDataLoading ? (
              Array.from({ length: isFullPage ? 8 : 6 }).map((_, i) => (
-                <div key={`skeleton-${i}`} className="aspect-[4/5] bg-rose-50/10 border border-rose-100/20 rounded-3xl p-6 flex flex-col justify-end relative overflow-hidden animate-pulse">
+                <div key={`skeleton-${i}`} className={`aspect-[4/5] bg-rose-50/10 border border-rose-100/20 rounded-3xl p-6 flex flex-col justify-end relative overflow-hidden animate-pulse ${!isFullPage ? "min-w-[calc(65vw)] sm:min-w-[calc(50%-16px)] md:min-w-[calc(33.333%-16px)] lg:min-w-[calc(25%-18px)] flex-shrink-0 snap-start" : ""}`}>
                   <div className="absolute inset-0 bg-gradient-to-t from-rose-100/20 via-rose-50/5 via-transparent to-transparent" />
                   <div className="h-6 w-24 bg-rose-100/40 rounded-full mb-3 z-10" />
                 </div>
              ))
            ) : (
-             (isFullPage ? filteredItems : filteredItems.slice(0, 6)).map((item, index) => (
+             displayItems.map((item, index) => (
                 <div 
                   key={item.id} 
                   onClick={() => setLightboxIndex(index)}
-                  className="group relative aspect-[4/5] overflow-hidden bg-gray-100 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
+                  className={`group relative aspect-[4/5] overflow-hidden bg-gray-100 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer ${!isFullPage ? "min-w-[calc(65vw)] sm:min-w-[calc(50%-16px)] md:min-w-[calc(33.333%-16px)] lg:min-w-[calc(25%-18px)] flex-shrink-0 snap-start" : ""}`}
                 >
                    {!isNear ? (
                       <div className="absolute inset-0 bg-rose-100/30 animate-pulse flex items-center justify-center">
@@ -378,9 +501,9 @@ export function ServiceGallery({ isFullPage = false }: { isFullPage?: boolean })
             </button>
 
             <div className="relative w-full h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-              {filteredItems[lightboxIndex].type === 'video' ? (
+              {displayItems[lightboxIndex].type === 'video' ? (
                 <video 
-                  src={filteredItems[lightboxIndex].url} 
+                  src={displayItems[lightboxIndex].url} 
                   className="max-w-full max-h-[90vh] object-contain rounded-lg" 
                   controls 
                   autoPlay 
@@ -388,7 +511,7 @@ export function ServiceGallery({ isFullPage = false }: { isFullPage?: boolean })
                 />
               ) : (
                 <img 
-                  src={filteredItems[lightboxIndex].url} 
+                  src={displayItems[lightboxIndex].url} 
                   alt="Gallery Lightbox" 
                   className="max-w-full max-h-[90vh] object-contain rounded-lg" 
                   referrerPolicy="no-referrer"
@@ -404,7 +527,7 @@ export function ServiceGallery({ isFullPage = false }: { isFullPage?: boolean })
             </button>
             
             <div className="absolute bottom-6 left-0 w-full text-center text-white/50 text-sm pointer-events-none">
-              {lightboxIndex + 1} of {filteredItems.length}
+              {lightboxIndex + 1} of {displayItems.length}
             </div>
           </div>
         </div>

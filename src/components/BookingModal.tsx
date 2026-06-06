@@ -12,6 +12,7 @@ export function BookingModal({ onClose, initialService = '' }: BookingModalProps
   const [time, setTime] = useState('');
   const [wantsReminder, setWantsReminder] = useState(false);
   const [phone, setPhone] = useState('');
+  const [isLoyaltyClient, setIsLoyaltyClient] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +30,10 @@ export function BookingModal({ onClose, initialService = '' }: BookingModalProps
     
     if (wantsReminder && phone) {
       text += `\nI also opted in for a reminder 24 hours before the appointment at ${phone}.`;
+    }
+
+    if (isLoyaltyClient) {
+      text += `\nNote: I am a repeat client! Please check and apply my Precious Hands Club loyalty reward. ✨`;
     }
 
     try {
@@ -87,6 +92,7 @@ export function BookingModal({ onClose, initialService = '' }: BookingModalProps
                   <option value="Temporary Extensions">Temporary Extensions</option>
                   <option value="Soft Gel Extensions">Soft Gel Extensions</option>
                   <option value="Acrylic / Gel Extensions">Acrylic / Gel Extensions</option>
+                  <option value="Custom Nail Art">Custom Nail Art</option>
                   <option value="Other">Other / Not sure</option>
                 </select>
               </div>
@@ -136,7 +142,7 @@ export function BookingModal({ onClose, initialService = '' }: BookingModalProps
               </div>
             </div>
 
-            <div className="bg-rose-50/50 p-4 rounded-xl border border-rose-100/50">
+            <div className="bg-rose-50/50 p-4 rounded-xl border border-rose-100/50 space-y-4">
               <div className="flex items-start">
                 <div className="flex h-5 items-center">
                   <input
@@ -170,6 +176,28 @@ export function BookingModal({ onClose, initialService = '' }: BookingModalProps
                   />
                 </div>
               )}
+
+              <hr className="border-rose-100/30" />
+
+              <div className="flex items-start">
+                <div className="flex h-5 items-center">
+                  <input
+                    id="loyalty"
+                    type="checkbox"
+                    checked={isLoyaltyClient}
+                    onChange={(e) => setIsLoyaltyClient(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500 bg-white"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="loyalty" className="font-semibold text-rose-700 cursor-pointer flex items-center gap-1.5">
+                    Repeat Client (Loyalty Program)
+                  </label>
+                  <p className="text-gray-500 font-light mt-0.5">
+                    Check this if you've visited before to automatically claim your visit points or discount!
+                  </p>
+                </div>
+              </div>
             </div>
 
             <button

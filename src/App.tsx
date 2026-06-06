@@ -8,6 +8,11 @@ import { Testimonials } from './components/Testimonials';
 import { FAQ } from './components/FAQ';
 import { Contact } from './components/Contact';
 import { FloatingWhatsApp } from './FloatingWhatsApp';
+import { CookieConsent } from './components/CookieConsent';
+import { LoyaltyRewards } from './components/LoyaltyRewards';
+import { HowToBook } from './components/HowToBook';
+import { AftercareInstructions } from './components/AftercareInstructions';
+import { Courses } from './components/Courses';
 import { useBooking } from './contexts/BookingContext';
 import { Menu, X, ArrowUp } from 'lucide-react';
 
@@ -39,6 +44,7 @@ export default function App() {
   const navLinks = [
     { name: 'About', href: '#about' },
     { name: 'Services', href: '#services' },
+    { name: 'Courses', href: '#courses' },
     { name: 'Gallery', href: '#gallery' },
     { name: 'Testimonials', href: '#testimonials' },
     { name: 'Contact', href: '#contact' },
@@ -55,7 +61,7 @@ export default function App() {
                 <img 
                   src="./logo.png?v=2" 
                   alt="Nails by Purvi Ramani Logo" 
-                  className="h-16 sm:h-20 w-auto object-contain mix-blend-multiply transition-transform duration-300 hover:scale-105"
+                  className="h-16 sm:h-20 w-auto object-contain mix-blend-multiply transition-transform duration-300 hover:scale-105 border-none"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
@@ -122,9 +128,12 @@ export default function App() {
       <main className="pt-20">
         <Hero />
         <Services />
+        <HowToBook />
+        <Courses />
         <WhyChooseUs />
         <About />
         <ServiceGallery />
+        <AftercareInstructions />
         <Testimonials />
         <FAQ />
         <Contact />
@@ -132,6 +141,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="bg-rose-50/50 py-16 text-center border-t border-rose-100">
+        <LoyaltyRewards />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center mb-6">
             <a href="#" className="flex justify-center" onClick={(e) => { e.preventDefault(); window.scrollTo(0,0); }}>
@@ -152,6 +162,7 @@ export default function App() {
       </footer>
       
       <FloatingWhatsApp />
+      <CookieConsent />
       
       {/* Back to Top Button */}
       <button

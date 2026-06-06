@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, X, Upload, CheckCircle2, MessageSquarePlus, Camera } from 'lucide-react';
 
 const initialTestimonials = [
@@ -29,6 +29,14 @@ export function Testimonials() {
   const [testimonials, setTestimonials] = useState(initialTestimonials);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsDataLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
   
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -81,29 +89,55 @@ export function Testimonials() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {testimonials.slice(0, 3).map((testimonial, index) => (
-            <div key={index} className="bg-white p-8 rounded-2xl shadow-sm border border-rose-100/50 relative flex flex-col">
-              <div className="flex text-rose-400 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`w-5 h-5 ${i < testimonial.rating ? 'fill-current text-rose-400' : 'text-gray-200'}`} />
-                ))}
-              </div>
-              <p className="text-gray-600 font-light italic mb-6 leading-relaxed flex-grow">
-                "{testimonial.text}"
-              </p>
-              
-              {testimonial.image && (
-                <div className="mb-6 rounded-xl overflow-hidden h-32 w-full object-cover">
-                  <img src={testimonial.image} alt="Client result" className="w-full h-full object-cover" />
+          {isDataLoading ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <div key={`testimonial-skeleton-${index}`} className="bg-white p-8 rounded-2xl shadow-sm border border-rose-100/50 relative flex flex-col justify-between min-h-[280px] animate-pulse">
+                <div>
+                  <div className="flex gap-1 mb-6">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="w-5 h-5 bg-rose-100/60 rounded-full" />
+                    ))}
+                  </div>
+                  <div className="space-y-3 mb-8">
+                    <div className="h-3.5 bg-gray-100 rounded w-full" />
+                    <div className="h-3.5 bg-gray-100 rounded w-5/6" />
+                    <div className="h-3.5 bg-gray-100 rounded w-2/3" />
+                  </div>
                 </div>
-              )}
-              
-              <div>
-                <h4 className="font-medium text-gray-900">{testimonial.name}</h4>
-                <p className="text-sm text-rose-500">{testimonial.role}</p>
+                <div className="flex items-center gap-3 mt-4">
+                  <div className="w-10 h-10 bg-rose-50/80 rounded-full flex-shrink-0" />
+                  <div className="space-y-2 flex-grow">
+                    <div className="h-3.5 bg-gray-200/85 rounded w-24" />
+                    <div className="h-2.5 bg-rose-100/50 rounded w-16" />
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            testimonials.slice(0, 3).map((testimonial, index) => (
+              <div key={index} className="bg-white p-8 rounded-2xl shadow-sm border border-rose-100/50 relative flex flex-col">
+                <div className="flex text-rose-400 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`w-5 h-5 ${i < testimonial.rating ? 'fill-current text-rose-400' : 'text-gray-200'}`} />
+                  ))}
+                </div>
+                <p className="text-gray-600 font-light italic mb-6 leading-relaxed flex-grow">
+                  "{testimonial.text}"
+                </p>
+                
+                {testimonial.image && (
+                  <div className="mb-6 rounded-xl overflow-hidden h-32 w-full object-cover">
+                    <img src={testimonial.image} alt="Client result" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                
+                <div>
+                  <h4 className="font-medium text-gray-900">{testimonial.name}</h4>
+                  <p className="text-sm text-rose-500">{testimonial.role}</p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         <div className="text-center mt-12">

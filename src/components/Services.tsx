@@ -1,4 +1,4 @@
-import { Sparkles, Scissors, Palette, Clock, Feather, Gem, X, CheckCircle2, ArrowRight, type LucideIcon } from "lucide-react";
+import { Sparkles, Scissors, Palette, Clock, Feather, Gem, X, CheckCircle2, ArrowRight, Info, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { useBooking } from "../contexts/BookingContext";
 
@@ -11,6 +11,7 @@ interface ServiceProps {
   price?: string;
   image: string;
   icon: LucideIcon;
+  isCustomArt?: boolean;
 }
 
 const servicesList: ServiceProps[] = [
@@ -62,7 +63,7 @@ const servicesList: ServiceProps[] = [
       "Post-care instructions for easy removal"
     ],
     price: "₹1,000 - ₹1,500",
-    image: "https://images.unsplash.com/photo-1632897597732-c6dc5ef98f58?q=80&w=2000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=2000&auto=format&fit=crop",
     icon: Clock
   },
   {
@@ -79,7 +80,7 @@ const servicesList: ServiceProps[] = [
       "Top coat finishing and cuticle hydration"
     ],
     price: "₹1,500 - ₹2,500",
-    image: "https://images.unsplash.com/photo-1496229156094-1b7cd2bf72dc?q=80&w=2000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1610992015732-2449b76344ca?q=80&w=2000&auto=format&fit=crop",
     icon: Feather
   },
   {
@@ -96,8 +97,26 @@ const servicesList: ServiceProps[] = [
       "Final glossy top coat and nourishing hand treatment"
     ],
     price: "₹2,000 - ₹3,500",
-    image: "https://images.unsplash.com/photo-1595123984381-8079ed3a5f70?q=80&w=2000&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1632345031435-8797b2d58045?q=80&w=2000&auto=format&fit=crop",
     icon: Gem
+  },
+  {
+    id: "custom-nail-art",
+    title: "Custom Nail Art",
+    description: "Personalized, hand-painted artwork, chrome effects, gems, and embellishments tailored for your unique style.",
+    longDescription: "Turn your nails into a canvas of self-expression. Our Custom Nail Art service is designed for those who want completely personalized, unique designs. From subtle gradient ombres, elegant French tips, chic chrome finishes, to intricate hand-painted masterpieces, 3D elements, and brilliant rhinestone embellishments. Bring us your reference pictures, or let's collaborate on creating something completely original and high-fashion.",
+    steps: [
+      "One-on-one design consultation and reference review",
+      "Precise master canvas preparation (must be booked with or applied over a base service like manicure or extensions)",
+      "Custom hand-painting, airbrush, or layout of design elements",
+      "Encapsulation or dual-cure sealing for maximum art protection",
+      "High-gloss or boutique-matte specialized top coat application",
+      "Nourishing cuticle revitalization"
+    ],
+    price: "₹200+",
+    image: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?q=80&w=2000&auto=format&fit=crop",
+    icon: Palette,
+    isCustomArt: true
   }
 ];
 
@@ -143,6 +162,7 @@ export function Services() {
                   src={service.image} 
                   alt={service.title} 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300" />
               </div>
@@ -152,7 +172,26 @@ export function Services() {
                 </div>
                 <div className="pt-2">
                   <div className="flex justify-between items-start gap-4 mb-3">
-                    <h3 className="text-2xl font-serif text-gray-900">{service.title}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-2xl font-serif text-gray-900">{service.title}</h3>
+                      {service.isCustomArt && (
+                        <div className="relative group/tooltip inline-block shrink-0">
+                          <button 
+                            type="button"
+                            className="text-rose-400 hover:text-rose-600 transition-colors p-1 rounded-full hover:bg-rose-50 focus:outline-none"
+                            onClick={(e) => e.stopPropagation()} // Prevent opening details modal if clicking info icon
+                          >
+                            <Info className="w-4 h-4 cursor-pointer" />
+                          </button>
+                          
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-zinc-950 text-white text-xs font-normal rounded-xl p-3 shadow-xl leading-relaxed opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-300 z-30 text-center border border-zinc-800">
+                            Final pricing is subject to design complexity, materials used, and extra time.
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-zinc-950" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     {service.price && (
                       <span className="text-sm font-medium text-rose-700 bg-rose-50 px-3 py-1 rounded-full whitespace-nowrap mt-1">
                         {service.price}
@@ -186,6 +225,7 @@ export function Services() {
                 src={selectedService.image} 
                 alt={selectedService.title} 
                 className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-6 left-6 md:left-8 text-white">
@@ -199,7 +239,25 @@ export function Services() {
                     </span>
                   )}
                 </div>
-                <h3 className="text-3xl sm:text-4xl font-serif">{selectedService.title}</h3>
+                <div className="flex items-center gap-3">
+                  <h3 className="text-3xl sm:text-4xl font-serif">{selectedService.title}</h3>
+                  {selectedService.isCustomArt && (
+                    <div className="relative group/tooltip-modal inline-block">
+                      <button 
+                        type="button"
+                        className="text-white/85 hover:text-white transition-colors p-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full focus:outline-none"
+                      >
+                        <Info className="w-4 h-4" />
+                      </button>
+                      
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-zinc-950 text-white text-xs font-normal rounded-xl p-3 shadow-xl leading-relaxed opacity-0 invisible group-hover/tooltip-modal:opacity-100 group-hover/tooltip-modal:visible transition-all duration-300 z-30 text-center border border-zinc-800">
+                        Final pricing is subject to design complexity, materials used, and extra time.
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-[6px] border-transparent border-t-zinc-950" />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, X, UploadCloud, Settings2, Play } from 'lucide-react';
 
 export interface GalleryItem {
@@ -20,16 +20,47 @@ const CATEGORIES = [
 const DEFAULT_ITEMS: GalleryItem[] = [
   { id: '1', type: 'image', url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=600&auto=format&fit=crop', serviceCategory: 'Gel Polish', createdAt: Date.now() - 1000 },
   { id: '2', type: 'image', url: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?q=80&w=600&auto=format&fit=crop', serviceCategory: 'Dry Manicure', createdAt: Date.now() - 2000 },
-  { id: '3', type: 'image', url: 'https://images.unsplash.com/photo-1595123984381-8079ed3a5f70?q=80&w=600&auto=format&fit=crop', serviceCategory: 'Acrylic / Gel Extensions', createdAt: Date.now() - 3000 },
+  { id: '3', type: 'image', url: 'https://images.unsplash.com/photo-1632345031435-8797b2d58045?q=80&w=600&auto=format&fit=crop', serviceCategory: 'Acrylic / Gel Extensions', createdAt: Date.now() - 3000 },
   { id: '4', type: 'image', url: 'https://images.unsplash.com/photo-1516975080661-46bba20bcfdf?q=80&w=600&auto=format&fit=crop', serviceCategory: 'Dry Manicure', createdAt: Date.now() - 4000 },
   { id: '5', type: 'image', url: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=600&auto=format&fit=crop', serviceCategory: 'Gel Polish', createdAt: Date.now() - 5000 },
-  { id: '6', type: 'image', url: 'https://images.unsplash.com/photo-1496229156094-1b7cd2bf72dc?q=80&w=600&auto=format&fit=crop', serviceCategory: 'Soft Gel Extensions', createdAt: Date.now() - 6000 }
+  { id: '6', type: 'image', url: 'https://images.unsplash.com/photo-1610992015732-2449b76344ca?q=80&w=600&auto=format&fit=crop', serviceCategory: 'Soft Gel Extensions', createdAt: Date.now() - 6000 },
+  { id: '7', type: 'image', url: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600&auto=format&fit=crop', serviceCategory: 'Temporary Extensions', createdAt: Date.now() - 7000 }
 ];
 
 export function ServiceGallery() {
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [activeTab, setActiveTab] = useState<string>("All");
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+  
+  // Intersection Observer state and ref for optimized image loading
+  const [isNear, setIsNear] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsDataLoading(false);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsNear(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '400px' } // Pre-triggers image load when user is within 400px of the gallery section
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -141,7 +172,7 @@ export function ServiceGallery() {
   };
 
   return (
-    <section className="py-24 bg-rose-50/20 relative" id="gallery">
+    <section className="py-24 bg-rose-50/20 relative" id="gallery" ref={sectionRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 relative">
           <h2 className="text-3xl md:text-4xl font-serif text-gray-900 mb-4">Service Portfolio</h2>
@@ -189,7 +220,7 @@ export function ServiceGallery() {
         {/* Masonry/Grid Gallery */}
         <div className="grid grid-cols-2 lg:grid-cols-4 md:grid-cols-3 gap-4 md:gap-6">
            {/* Admin Upload Card */}
-           {isAdminMode && (
+           {isAdminMode && !isDataLoading && (
              <div 
                onClick={() => setIsModalOpen(true)}
                className="aspect-[4/5] bg-white border-2 border-dashed border-rose-200 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-rose-400 hover:bg-rose-50 transition-all duration-300 group shadow-sm hover:shadow-xl hover:-translate-y-1"
@@ -202,41 +233,54 @@ export function ServiceGallery() {
              </div>
            )}
 
-           {filteredItems.map(item => (
-              <div key={item.id} className="group relative aspect-[4/5] overflow-hidden bg-gray-100 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300">
-                 {item.type === 'video' ? (
-                   <>
-                     <video src={item.url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoPlay muted loop playsInline />
-                     <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md p-2 rounded-full">
-                         <Play className="w-4 h-4 text-white fill-white" />
-                     </div>
-                   </>
-                 ) : (
-                   <img src={item.url} alt={item.serviceCategory} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
-                 )}
-                 
-                 <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-3xl pointer-events-none"></div>
-                 
-                 <div className="absolute bottom-0 left-0 w-full p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 text-left">
-                    <span className="inline-flex items-center px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs tracking-wider uppercase font-medium border border-white/30 shadow-sm">
-                      {item.serviceCategory}
-                    </span>
-                 </div>
+           {isDataLoading ? (
+             Array.from({ length: 8 }).map((_, i) => (
+                <div key={`skeleton-${i}`} className="aspect-[4/5] bg-rose-50/10 border border-rose-100/20 rounded-3xl p-6 flex flex-col justify-end relative overflow-hidden animate-pulse">
+                  <div className="absolute inset-0 bg-gradient-to-t from-rose-100/20 via-rose-50/5 via-transparent to-transparent" />
+                  <div className="h-6 w-24 bg-rose-100/40 rounded-full mb-3 z-10" />
+                </div>
+             ))
+           ) : (
+             filteredItems.map(item => (
+                <div key={item.id} className="group relative aspect-[4/5] overflow-hidden bg-gray-100 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300">
+                   {!isNear ? (
+                      <div className="absolute inset-0 bg-rose-100/30 animate-pulse flex items-center justify-center">
+                        <span className="w-2.5 h-2.5 rounded-full bg-rose-200/60 animate-ping" />
+                      </div>
+                    ) : item.type === 'video' ? (
+                     <>
+                       <video src={item.url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" autoPlay muted loop playsInline />
+                       <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md p-2 rounded-full">
+                           <Play className="w-4 h-4 text-white fill-white" />
+                       </div>
+                     </>
+                   ) : (
+                     <img src={item.url} alt={item.serviceCategory} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" referrerPolicy="no-referrer" />
+                   )}
+                   
+                   <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-3xl pointer-events-none"></div>
+                   
+                   <div className="absolute bottom-0 left-0 w-full p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 text-left">
+                      <span className="inline-flex items-center px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs tracking-wider uppercase font-medium border border-white/30 shadow-sm">
+                        {item.serviceCategory}
+                      </span>
+                   </div>
 
-                 {isAdminMode && (
-                   <button 
-                     onClick={(e) => handleDelete(item.id, e)}
-                     className="absolute top-4 right-4 w-9 h-9 bg-white/90 text-red-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 hover:bg-red-500 hover:text-white transition-all duration-200 z-10"
-                     title="Delete Image"
-                   >
-                     <Trash2 className="w-4 h-4" />
-                   </button>
-                 )}
-              </div>
-           ))}
+                   {isAdminMode && (
+                     <button 
+                       onClick={(e) => handleDelete(item.id, e)}
+                       className="absolute top-4 right-4 w-9 h-9 bg-white/90 text-red-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 hover:bg-red-500 hover:text-white transition-all duration-200 z-10"
+                       title="Delete Image"
+                     >
+                       <Trash2 className="w-4 h-4" />
+                     </button>
+                   )}
+                </div>
+             ))
+           )}
         </div>
         
-        {filteredItems.length === 0 && !isAdminMode && (
+        {filteredItems.length === 0 && !isAdminMode && !isDataLoading && (
             <div className="text-center py-20">
                 <p className="text-gray-500 font-light text-lg">No media uploaded in this category yet.</p>
             </div>
@@ -285,7 +329,7 @@ export function ServiceGallery() {
                     uploadFile?.type.startsWith('video/') ? (
                       <video src={previewUrl} className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop />
                     ) : (
-                      <img src={previewUrl} className="absolute inset-0 w-full h-full object-cover" />
+                      <img src={previewUrl} className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
                     )
                   ) : (
                     <div className="relative z-10 flex flex-col items-center pointer-events-none text-center p-6">

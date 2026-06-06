@@ -1,4 +1,4 @@
-import { Sparkles, Scissors, Palette, Clock, Feather, Gem, X, CheckCircle2, ArrowRight, Info, type LucideIcon } from "lucide-react";
+import { Sparkles, Scissors, Palette, Clock, Feather, Gem, X, CheckCircle2, ArrowRight, Info, Timer, Box, Shield, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { useBooking } from "../contexts/BookingContext";
 
@@ -12,6 +12,9 @@ interface ServiceProps {
   image: string;
   icon: LucideIcon;
   isCustomArt?: boolean;
+  estimatedTime: string;
+  materialsUsed: string[];
+  careTips: string[];
 }
 
 const servicesList: ServiceProps[] = [
@@ -29,6 +32,9 @@ const servicesList: ServiceProps[] = [
       "Application of nourishing cuticle oil and hand massage"
     ],
     price: "₹500 - ₹800",
+    estimatedTime: "45 - 60 minutes",
+    materialsUsed: ["Professional E-file", "Diamond bits", "Nourishing cuticle oil", "High-grade buffers"],
+    careTips: ["Apply cuticle oil daily", "Wear gloves while cleaning", "Avoid using nails as tools"],
     image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?q=80&w=2000&auto=format&fit=crop",
     icon: Scissors
   },
@@ -46,6 +52,9 @@ const servicesList: ServiceProps[] = [
       "Cleansing and hydrating cuticle oil finish"
     ],
     price: "₹800 - ₹1,200",
+    estimatedTime: "60 - 90 minutes",
+    materialsUsed: ["Premium gel base/top coats", "UV/LED Lamp", "High-pigment gel colors", "pH bonders"],
+    careTips: ["Do not pick or peel the polish", "Use cuticle oil regularly", "Get professional removal"],
     image: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=2000&auto=format&fit=crop",
     icon: Palette
   },
@@ -63,6 +72,9 @@ const servicesList: ServiceProps[] = [
       "Post-care instructions for easy removal"
     ],
     price: "₹1,000 - ₹1,500",
+    estimatedTime: "45 - 75 minutes",
+    materialsUsed: ["High-quality ABS tips", "Safe temporary adhesive", "Nail prep dehydrator"],
+    careTips: ["Avoid prolonged water exposure", "Use oil to help remove them safely", "Do not forcefully pull off"],
     image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=2000&auto=format&fit=crop",
     icon: Clock
   },
@@ -80,7 +92,10 @@ const servicesList: ServiceProps[] = [
       "Top coat finishing and cuticle hydration"
     ],
     price: "₹1,500 - ₹2,500",
-    image: "https://images.unsplash.com/photo-1610992015732-2449b76344ca?q=80&w=2000&auto=format&fit=crop",
+    estimatedTime: "90 - 120 minutes",
+    materialsUsed: ["Soft gel (Gel-X) tips", "Extend gel builder", "Gel colors", "LED curing lamp"],
+    careTips: ["Maintain every 3-4 weeks", "Avoid harsh chemicals", "Never try to rip them off yourself"],
+    image: "/soft-gel.jpg",
     icon: Feather
   },
   {
@@ -97,7 +112,10 @@ const servicesList: ServiceProps[] = [
       "Final glossy top coat and nourishing hand treatment"
     ],
     price: "₹2,000 - ₹3,500",
-    image: "https://images.unsplash.com/photo-1632345031435-8797b2d58045?q=80&w=2000&auto=format&fit=crop",
+    estimatedTime: "120 - 180 minutes",
+    materialsUsed: ["EMA Liquid Monomer/Hard Gel", "Acrylic powders", "Nail forms", "Acid-free primer"],
+    careTips: ["Keep up with regular 2-3 week infills", "Use cuticle oil twice daily", "Wear gloves for dishwashing"],
+    image: "/acrylic.jpg",
     icon: Gem
   },
   {
@@ -114,6 +132,9 @@ const servicesList: ServiceProps[] = [
       "Nourishing cuticle revitalization"
     ],
     price: "₹200+",
+    estimatedTime: "Add 30 - 90 minutes",
+    materialsUsed: ["Liner brushes", "Chrome powders", "Swarovski crystals", "3D sculpting gels", "Blooming gel"],
+    careTips: ["Be gentle with 3D elements", "Avoid staining from spices/dyes", "Apply top coat if shine dulls"],
     image: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?q=80&w=2000&auto=format&fit=crop",
     icon: Palette,
     isCustomArt: true
@@ -135,8 +156,38 @@ export function Services() {
     window.open(url, '_blank');
   };
 
+  const schemaMarkup = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": servicesList.map((service, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Service",
+        "name": service.title,
+        "description": service.description,
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "Nails by Purvi"
+        },
+        "offers": {
+          "@type": "Offer",
+          "priceSpecification": {
+            "@type": "PriceSpecification",
+            "priceCurrency": "INR",
+            "description": service.price || "Variable pricing based on customization"
+          }
+        }
+      }
+    }))
+  };
+
   return (
     <section id="services" className="py-24 bg-rose-50/30 relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="flex items-center justify-center gap-2 mb-4">
@@ -265,6 +316,46 @@ export function Services() {
               <p className="text-gray-600 leading-relaxed font-light mb-8 text-lg">
                 {selectedService.longDescription}
               </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-rose-50/50 rounded-2xl p-6 border border-rose-100">
+                  <h5 className="font-serif text-lg text-gray-900 mb-3 flex items-center gap-2">
+                    <Timer className="w-5 h-5 text-rose-500" />
+                    Estimated Time
+                  </h5>
+                  <p className="text-gray-700 font-medium">{selectedService.estimatedTime}</p>
+                </div>
+
+                <div className="bg-rose-50/50 rounded-2xl p-6 border border-rose-100">
+                  <h5 className="font-serif text-lg text-gray-900 mb-3 flex items-center gap-2">
+                    <Box className="w-5 h-5 text-rose-500" />
+                    Materials Used
+                  </h5>
+                  <ul className="space-y-2">
+                    {selectedService.materialsUsed.map((material, idx) => (
+                      <li key={idx} className="flex gap-2 text-gray-600 text-sm font-light">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
+                        {material}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-6 mb-10">
+                <h5 className="font-serif text-lg text-gray-900 mb-4 flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-zinc-400" />
+                  Specific Care Tips
+                </h5>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {selectedService.careTips.map((tip, idx) => (
+                    <li key={idx} className="flex gap-2 text-gray-600 text-sm font-light">
+                      <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 mt-1.5 shrink-0" />
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
               
               <div className="mb-10">
                 <h4 className="text-xl font-serif text-gray-900 mb-6 flex items-center gap-2">

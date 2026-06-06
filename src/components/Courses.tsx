@@ -37,7 +37,7 @@ const COURSES_DATA: CourseProps[] = [
       'Hands-on practice on professional trainers and nail wheels',
       'Complimentary Certification of Completion'
     ],
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=600&auto=format&fit=crop',
+    image: '/SELF-NAIL-ART.jpg',
     badge: 'Self-Care & Hobby'
   },
   {
@@ -63,7 +63,7 @@ const COURSES_DATA: CourseProps[] = [
       'Golden Framed Career-Ready Professional Nail Artist Certification',
       'Exclusive Lifetime WhatsApp Mentorship and post-course doubt clearing'
     ],
-    image: 'https://images.unsplash.com/photo-1610992015732-2449b76344ca?q=80&w=600&auto=format&fit=crop',
+    image: '/PROFESSIONAL-NAIL.jpg',
     badge: 'Most Popular / Career Course'
   },
   {
@@ -87,7 +87,7 @@ const COURSES_DATA: CourseProps[] = [
       'Official Master-Class Specialty Certification of Artistry by Nails by Purvi',
       'Special list of top verified luxury suppliers in India for raw materials'
     ],
-    image: 'https://images.unsplash.com/photo-1632345031435-8797b2d58045?q=80&w=600&auto=format&fit=crop',
+    image: '/Elite-3D.jpg',
     badge: 'Elite Specialty Up-skill'
   }
 ];
@@ -210,6 +210,8 @@ Please guide me with the seat availability and enrollment steps! Thank you.`;
                 alt={selectedTabData.title} 
                 className="absolute inset-0 w-full h-full object-cover"
                 referrerPolicy="no-referrer"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-950/70 via-gray-950/25 to-transparent"></div>
               

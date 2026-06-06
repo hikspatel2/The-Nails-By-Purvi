@@ -58,17 +58,8 @@ export default function App() {
           <div className="flex justify-between items-center h-20">
             <div className="flex-shrink-0 flex items-center">
               <a href="#" className="flex items-center cursor-pointer" onClick={(e) => { e.preventDefault(); window.scrollTo(0,0); }}>
-                <img 
-                  src="./logo.png?v=2" 
-                  alt="Nails by Purvi Ramani Logo" 
-                  className="h-16 sm:h-20 w-auto object-contain mix-blend-multiply transition-transform duration-300 hover:scale-105 border-none"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-                <span className="font-serif text-xl sm:text-2xl tracking-tighter text-gray-900 hidden">
-                  Nails by Purvi<span className="text-rose-500">.</span>
+                <span className="font-serif text-xl sm:text-2xl tracking-tighter text-gray-900">
+                  The Nails by Purvi Ramani<span className="text-rose-500">.</span>
                 </span>
               </a>
             </div>
@@ -146,13 +137,14 @@ export default function App() {
           <div className="flex justify-center mb-6">
             <a href="#" className="flex justify-center" onClick={(e) => { e.preventDefault(); window.scrollTo(0,0); }}>
               <span className="font-serif text-2xl md:text-3xl tracking-tighter text-gray-900">
-                Nails by Purvi<span className="text-rose-500">.</span>
+                The Nails by Purvi Ramani<span className="text-rose-500">.</span>
               </span>
             </a>
           </div>
           <p className="text-zinc-500 font-light text-sm">
             &copy; {new Date().getFullYear()} The Nails by Purvi. All rights reserved.<br/>
-            Located in Panchvati, Nashik.
+            Located in Panchvati, Nashik.<br/>
+            <span className="mt-2 inline-block">Developed By Rudees Digital - 81601 40848</span>
           </p>
           <div className="mt-6 flex justify-center space-x-6 text-xs text-zinc-400 font-light">
             <a href="#" className="hover:text-rose-500 transition-colors">Privacy Policy</a>

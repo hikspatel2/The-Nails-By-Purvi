@@ -35,7 +35,7 @@ const servicesList: ServiceProps[] = [
     estimatedTime: "45 - 60 minutes",
     materialsUsed: ["Professional E-file", "Diamond bits", "Nourishing cuticle oil", "High-grade buffers"],
     careTips: ["Apply cuticle oil daily", "Wear gloves while cleaning", "Avoid using nails as tools"],
-    image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?q=80&w=2000&auto=format&fit=crop",
+    image: "/Dry-Manicure.jpg",
     icon: Scissors
   },
   {
@@ -75,7 +75,7 @@ const servicesList: ServiceProps[] = [
     estimatedTime: "45 - 75 minutes",
     materialsUsed: ["High-quality ABS tips", "Safe temporary adhesive", "Nail prep dehydrator"],
     careTips: ["Avoid prolonged water exposure", "Use oil to help remove them safely", "Do not forcefully pull off"],
-    image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=2000&auto=format&fit=crop",
+    image: "/Temporary-Extensions.jpg",
     icon: Clock
   },
   {
@@ -214,6 +214,8 @@ export function Services() {
                   alt={service.title} 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   referrerPolicy="no-referrer"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300" />
               </div>
@@ -277,6 +279,8 @@ export function Services() {
                 alt={selectedService.title} 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-6 left-6 md:left-8 text-white">

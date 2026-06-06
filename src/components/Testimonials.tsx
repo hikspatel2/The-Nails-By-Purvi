@@ -127,7 +127,7 @@ export function Testimonials() {
                 
                 {testimonial.image && (
                   <div className="mb-6 rounded-xl overflow-hidden h-32 w-full object-cover">
-                    <img src={testimonial.image} alt="Client result" className="w-full h-full object-cover" />
+                    <img src={testimonial.image} alt="Client result" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                   </div>
                 )}
                 

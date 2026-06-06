@@ -14,6 +14,8 @@ export function About() {
                   }}
                   alt="Purvi designing nails" 
                   className="w-full h-auto aspect-[4/5] object-cover object-center"
+                  loading="lazy"
+                  decoding="async"
                 />
             </div>
             {/* Decorative background element */}
@@ -43,6 +45,8 @@ export function About() {
                 alt="Purvi Signature" 
                 className="h-12 opacity-40 mix-blend-multiply flex-shrink-0 grayscale hue-rotate-180 sepia transition-opacity hover:opacity-70"
                 style={{ filter: "invert(1) opacity(0.8) drop-shadow(0 0 0 rose)" }}
+                loading="lazy"
+                decoding="async"
               />
               <p className="mt-4 font-serif italic text-gray-800">Purvi Jagdish Ramani</p>
               <p className="text-sm text-gray-500 uppercase tracking-widest mt-1">Founder & Lead Artist</p>

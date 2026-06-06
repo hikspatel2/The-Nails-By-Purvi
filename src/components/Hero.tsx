@@ -60,6 +60,8 @@ export function Hero() {
                   src="https://images.unsplash.com/photo-1604654894610-df63bc536371?q=80&w=1000&auto=format&fit=crop"
                   alt="Luxury manicure"
                   className="w-full h-full object-cover object-center scale-105 hover:scale-110 transition-transform duration-1000"
+                  fetchPriority="high"
+                  decoding="async"
                 />
               </div>
 
